@@ -1,0 +1,2 @@
+patchedDependencies:
+  '@mastra/mcp@1.4.1': patches/@mastra__mcp@1.4.1.patch
