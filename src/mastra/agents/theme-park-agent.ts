@@ -4,6 +4,10 @@ import { findQueueTimesParkTool } from "../tools/find-park-tools";
 import { getQueueTimesLiveTool } from "../tools/queue-times-tool";
 import { firecrawlMcpClient } from "../mcp/firecrawl-mcp";
 import { weatherTool } from "../tools/weather-tool";
+import {
+  PromptInjectionDetector,
+  ModerationProcessor,
+} from "@mastra/core/processors";
 
 const { firecrawl_firecrawl_extract } = await firecrawlMcpClient.listTools();
 
@@ -46,21 +50,28 @@ export const themeParkAgent = new Agent({
   model: "openai/gpt-5.1",
   memory: new Memory({
     options: {
-      lastMessages: 20,
       observationalMemory: {
         model: "google/gemini-2.5-flash",
         scope: "resource",
         observation: {
           // when to run the Observer (default: 30,000)
-          messageTokens: 10_000,
+          messageTokens: 30_000,
         },
         reflection: {
           // when to run the Reflector (default: 40,000)
-          observationTokens: 30_000,
+          observationTokens: 40_000,
         },
       },
     },
   }),
+  inputProcessors: [
+    new ModerationProcessor({
+      model: "openai/gpt-4o-mini",
+      categories: ["hate", "harassment", "violence"],
+      threshold: 0.7,
+      strategy: "block",
+    }),
+  ],
   tools: {
     findQueueTimesParkTool,
     getQueueTimesLiveTool,
