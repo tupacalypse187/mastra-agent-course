@@ -16,7 +16,7 @@ npm run build   # Production build
 | Agent | File | Model | Tools |
 | --- | --- | --- | --- |
 | Weather Agent | `src/mastra/agents/weather-agent.ts` | `anthropic/claude-sonnet-4-5` | `weatherTool` |
-| Theme Park Agent | `src/mastra/agents/theme-park-agent.ts` | `zai-coding-plan/glm-5-turbo` | `findQueueTimesParkTool`, `getQueueTimesLiveTool` |
+| Theme Park Agent | `src/mastra/agents/theme-park-agent.ts` | `zai-coding-plan/glm-5-turbo` | `findQueueTimesParkTool`, `getQueueTimesLiveTool`, `firecrawl_firecrawl_extract`, `weatherTool` |
 
 ### Tools
 
@@ -25,6 +25,12 @@ npm run build   # Production build
 | `weatherTool` | `src/mastra/tools/weather-tool.ts` | Fetches current weather via Open-Meteo API |
 | `findQueueTimesParkTool` | `src/mastra/tools/find-park-tools.ts` | Looks up Queue-Times parkId by park name |
 | `getQueueTimesLiveTool` | `src/mastra/tools/get-queue-times-live-tool.ts` | Fetches live ride wait times, sorted by shortest wait first |
+
+### MCP Clients
+
+| Client | File | Purpose |
+| --- | --- | --- |
+| `firecrawlMcpClient` | `src/mastra/mcp/firecrawl-mcp.ts` | Firecrawl MCP server for scraping park pages (hours, stats, calendar) |
 
 ### Workflow
 
@@ -51,6 +57,7 @@ npm run build   # Production build
 - Zod v4 is used (`zod@^4.3.6`) — there are type errors in `node_modules/@mastra/core` internal types due to Zod v3/v4 mismatch; these are harmless
 - No root `tsconfig.json` — Mastra CLI manages the build config
 - `.env` file is gitignored; copy from `.env.example`
+- `FIRECRAWL_API_KEY` required in `.env` for the Firecrawl MCP server used by the theme park agent
 
 ## Rules
 
