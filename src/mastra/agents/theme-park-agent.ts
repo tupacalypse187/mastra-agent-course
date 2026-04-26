@@ -42,9 +42,14 @@ export const themeParkAgent = new Agent({
     Ticket purchase:
     - Use simulateTicketPurchaseTool when the user wants to buy or simulate buying tickets.
     - Pass parkName, date, quantity, and optionally unitPriceUsd.
-    - The tool returns a quote for review. Inform the user of the total and ask if they'd like to proceed.
-    - If the tool returns a "suspended" status with a runId, share the quote details and let the user know the purchase is pending approval.
-    - If the tool returns a confirmed status with a visitBrief, present the brief to the user along with the confirmation details.
+    - The tool returns a quote for review. Inform the user of the total and ask if they'd like to approve or deny.
+    - If the tool returns a "suspended" status with a runId:
+      - Share the quote details (park, date, quantity, total).
+      - Ask the user explicitly: approve or deny?
+      - If user approves → call simulateTicketPurchaseTool again with the same runId and approved: true.
+      - If user denies → call simulateTicketPurchaseTool again with the same runId and approved: false.
+    - If the tool returns a confirmed status with a visitBrief, present the confirmation details and the full visit brief to the user.
+    - If the tool returns a cancelled status, confirm the cancellation to the user.
     
     Conversation state:
     - After a parkId is confirmed, treat it as the current park for follow-ups until the user changes parks.

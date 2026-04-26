@@ -20,6 +20,14 @@ export const simulateTicketPurchaseTool = createTool({
       .positive()
       .default(110)
       .describe('Price per ticket in USD (default 110)'),
+    runId: z
+      .string()
+      .optional()
+      .describe('Run ID from a prior suspended purchase to resume'),
+    approved: z
+      .boolean()
+      .optional()
+      .describe('Approval decision (true=approve, false=deny). Required when runId is provided.'),
   }),
   outputSchema: z.object({
     status: z.string(),
@@ -41,16 +49,29 @@ export const simulateTicketPurchaseTool = createTool({
     visitBrief: z.string().optional(),
     runId: z.string().optional(),
   }),
-  execute: async ({ parkName, date, quantity, unitPriceUsd }, { mastra }) => {
+  execute: async (
+    { parkName, date, quantity, unitPriceUsd, runId, approved },
+    { mastra },
+  ) => {
     const workflow = mastra?.getWorkflow('simulateTicketPurchaseWorkflow');
     if (!workflow) {
       throw new Error('simulateTicketPurchaseWorkflow not found');
     }
 
-    const run = await workflow.createRun();
-    const result = await run.start({
-      inputData: { parkName, date, quantity, unitPriceUsd },
-    });
+    let run: Awaited<ReturnType<typeof workflow.createRun>>;
+    let result;
+
+    if (runId && approved !== undefined) {
+      // Resume path: reconstruct the suspended run and resume with decision
+      run = await workflow.createRun({ runId });
+      result = await run.resume({ resumeData: { approved } });
+    } else {
+      // Start path: begin a new workflow execution
+      run = await workflow.createRun();
+      result = await run.start({
+        inputData: { parkName, date, quantity, unitPriceUsd },
+      });
+    }
 
     if (result.status === 'suspended') {
       const quote = result.steps['approve-purchase']?.output?.quote;

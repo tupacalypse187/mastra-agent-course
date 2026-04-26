@@ -117,7 +117,7 @@ To install/update:
 | Workflow | What it does |
 | --- | --- |
 | `weatherWorkflow` | Fetch weather → stream activity suggestions from the weather agent |
-| `simulateTicketPurchaseWorkflow` | Build quote → suspend for approval → charge card → agent-generated visit brief (or cancel) |
+| `simulateTicketPurchaseWorkflow` | Build quote → suspend for approval (in chat) → charge card → agent-generated visit brief (or cancel) |
 
 ### Example Conversations
 
@@ -131,10 +131,14 @@ To install/update:
 >
 > The agent fetches weather for Orlando and factors conditions into its recommendations.
 
-**Ticket purchase:**
+**Ticket purchase (full in-chat flow):**
 > "Buy 3 tickets for Islands of Adventure on 2026-05-15"
 >
-> The agent starts the purchase workflow, returns a quote ($330 + fees), and informs you the purchase is pending approval. Once approved (via Studio's workflow runner), the card is charged and the agent streams a 3-point visit brief with arrival tips, must-do attractions, and things to avoid.
+> The agent starts the purchase workflow, returns a quote ($330 + fees), and asks you to approve or deny.
+>
+> **"approve"** → The agent resumes the workflow, the card is charged, and it streams a 3-point visit brief with arrival tips, must-do attractions, and things to avoid.
+>
+> **"no"** → The agent resumes with denial and confirms the cancellation.
 
 ## Commit History
 
