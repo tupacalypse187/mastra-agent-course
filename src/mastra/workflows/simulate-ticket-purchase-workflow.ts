@@ -168,11 +168,16 @@ const postPurchaseSummary = createStep({
     const stream = await agent.stream(prompt, { maxSteps: 5 });
 
     // Pipe agent text stream to workflow writer (Mastra best practice)
-    // and simultaneously output live to the terminal
+    // and simultaneously output live to the terminal.
+    // Collect text manually since tee()/pipeTo() bypasses the internal
+    // tracking that stream.text relies on to resolve its promise.
+    let briefText = '';
+
     if (writer) {
       const terminalStream = new WritableStream<string>({
         write(chunk) {
           process.stdout.write(chunk);
+          briefText += chunk;
         },
       });
       const [workflowBranch, terminalBranch] = stream.textStream.tee();
@@ -183,6 +188,7 @@ const postPurchaseSummary = createStep({
     } else {
       for await (const text of stream.textStream) {
         process.stdout.write(text);
+        briefText += text;
       }
     }
 
@@ -190,7 +196,7 @@ const postPurchaseSummary = createStep({
 
     return {
       ...inputData,
-      visitBrief: await stream.text,
+      visitBrief: briefText,
     };
   },
 });

@@ -6,8 +6,14 @@ export const simulateTicketPurchaseTool = createTool({
   description:
     'Starts a ticket purchase workflow: builds a quote, suspends for approval, then charges if approved. Returns the quote for review or the final purchase result.',
   inputSchema: z.object({
-    parkName: z.string().describe('Name of the theme park'),
-    date: z.string().describe('Visit date (YYYY-MM-DD)'),
+    parkName: z
+      .string()
+      .optional()
+      .describe('Name of the theme park (required for new purchases, not for resume)'),
+    date: z
+      .string()
+      .optional()
+      .describe('Visit date YYYY-MM-DD (required for new purchases, not for resume)'),
     quantity: z
       .number()
       .int()
@@ -62,15 +68,17 @@ export const simulateTicketPurchaseTool = createTool({
     let result;
 
     if (runId && approved !== undefined) {
-      // Resume path: reconstruct the suspended run and resume with decision
       run = await workflow.createRun({ runId });
       result = await run.resume({ resumeData: { approved } });
-    } else {
-      // Start path: begin a new workflow execution
+    } else if (parkName && date) {
       run = await workflow.createRun();
       result = await run.start({
         inputData: { parkName, date, quantity, unitPriceUsd },
       });
+    } else {
+      throw new Error(
+        'Provide parkName and date for a new purchase, or runId and approved to resume.',
+      );
     }
 
     if (result.status === 'suspended') {
