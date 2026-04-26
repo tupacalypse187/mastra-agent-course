@@ -7,7 +7,7 @@ export const firecrawlMcpClient = new MCPClient({
       command: 'npx',
       args: ['-y', 'firecrawl-mcp'],
       env: {
-        FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY,
+        FIRECRAWL_API_KEY: process.env.FIRECRAWL_API_KEY || '',
       },
     },
   },

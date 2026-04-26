@@ -25,6 +25,7 @@ npm run build   # Production build
 | `weatherTool` | `src/mastra/tools/weather-tool.ts` | Fetches current weather via Open-Meteo API |
 | `findQueueTimesParkTool` | `src/mastra/tools/find-park-tools.ts` | Looks up Queue-Times parkId by park name |
 | `getQueueTimesLiveTool` | `src/mastra/tools/get-queue-times-live-tool.ts` | Fetches live ride wait times, sorted by shortest wait first |
+| `mockChargeTool` | `src/mastra/tools/mock-charge-tool.ts` | Simulates a Stripe-like card charge (always succeeds) |
 
 ### MCP Clients
 
@@ -34,7 +35,10 @@ npm run build   # Production build
 
 ### Workflow
 
-`weather-workflow` (`src/mastra/workflows/weather-workflow.ts`) — two-step pipeline: fetch weather for a city, then stream activity suggestions from the weather agent.
+| Workflow | File | Description |
+| --- | --- | --- |
+| `weatherWorkflow` | `src/mastra/workflows/weather-workflow.ts` | Fetches weather for a city, then streams activity suggestions from the weather agent |
+| `simulateTicketPurchaseWorkflow` | `src/mastra/workflows/simulate-ticket-purchase-workflow.ts` | Three-step ticket purchase: build quote, suspend for approval, then charge card via `mockChargeTool` |
 
 ### Scorers
 
