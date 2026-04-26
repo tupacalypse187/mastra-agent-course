@@ -154,11 +154,14 @@ Built a three-step workflow using Mastra's human-in-the-loop pattern:
 2. **approve-purchase** — suspends the workflow for external approval (uses `suspend()`/`bail()`)
 3. **charge-card** — runs `mockChargeTool` if approved, or returns cancellation if rejected
 
-### `77b9dc6` Integrate ticket purchase workflow into theme park agent
+### `1e11e5c` Integrate ticket purchase workflow into theme park agent
 Created `simulateTicketPurchaseTool` that starts the workflow from the agent via `mastra.getWorkflow()`. The tool handles both suspended (returns quote for review) and success (returns final result) states. Wired it into the theme park agent with instructions for when to trigger a purchase.
 
-### `(next)` Add post-purchase visit brief step to ticket workflow
+### `2a37584` Add post-purchase visit brief step to ticket workflow
 Added a `postPurchaseSummary` workflow step that runs after card charge. It retrieves the theme park agent from the Mastra instance, streams a 3-point visit brief (best arrival time, must-do attraction, things to avoid) using `agent.stream()` with `textStream.tee()` for both workflow writer and terminal output. Extended the workflow output schema with a `visitBrief` field and updated the tool to pass it through.
+
+### `9b5010c` Add in-chat approval/denial for ticket purchase workflow
+Wired up `simulateTicketPurchaseTool` to support resuming suspended runs via optional `runId` + `approved` input fields using `createRun({ runId })` + `run.resume()`. Updated agent instructions for the full approve/deny round-trip in chat so users can complete the entire purchase flow (quote → approve → charge → visit brief) without leaving the conversation.
 
 ## Learn More
 
