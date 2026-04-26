@@ -15,8 +15,8 @@ npm run build   # Production build
 
 | Agent | File | Model | Tools |
 | --- | --- | --- | --- |
-| Weather Agent | `src/mastra/agents/weather-agent.ts` | `anthropic/claude-sonnet-4-5` | `weatherTool` |
-| Theme Park Agent | `src/mastra/agents/theme-park-agent.ts` | `zai-coding-plan/glm-5-turbo` | `findQueueTimesParkTool`, `getQueueTimesLiveTool` |
+| Weather Agent | `src/mastra/agents/weather-agent.ts` | `zai-coding-plan/glm-5-turbo` | `weatherTool` |
+| Theme Park Agent | `src/mastra/agents/theme-park-agent.ts` | `zai-coding-plan/glm-5-turbo` | `findQueueTimesParkTool`, `getQueueTimesLiveTool`, `firecrawl_firecrawl_extract`, `weatherTool`, `simulateTicketPurchaseTool` |
 
 ### Tools
 
@@ -25,10 +25,21 @@ npm run build   # Production build
 | `weatherTool` | `src/mastra/tools/weather-tool.ts` | Fetches current weather via Open-Meteo API |
 | `findQueueTimesParkTool` | `src/mastra/tools/find-park-tools.ts` | Looks up Queue-Times parkId by park name |
 | `getQueueTimesLiveTool` | `src/mastra/tools/get-queue-times-live-tool.ts` | Fetches live ride wait times, sorted by shortest wait first |
+| `mockChargeTool` | `src/mastra/tools/mock-charge-tool.ts` | Simulates a Stripe-like card charge (always succeeds) |
+| `simulateTicketPurchaseTool` | `src/mastra/tools/simulate-ticket-purchase-tool.ts` | Starts or resumes the ticket purchase workflow (build quote, approve/deny, charge, visit brief) |
+
+### MCP Clients
+
+| Client | File | Purpose |
+| --- | --- | --- |
+| `firecrawlMcpClient` | `src/mastra/mcp/firecrawl-mcp.ts` | Firecrawl MCP server for scraping park pages (hours, stats, calendar) |
 
 ### Workflow
 
-`weather-workflow` (`src/mastra/workflows/weather-workflow.ts`) — two-step pipeline: fetch weather for a city, then stream activity suggestions from the weather agent.
+| Workflow | File | Description |
+| --- | --- | --- |
+| `weatherWorkflow` | `src/mastra/workflows/weather-workflow.ts` | Fetches weather for a city, then streams activity suggestions from the weather agent |
+| `simulateTicketPurchaseWorkflow` | `src/mastra/workflows/simulate-ticket-purchase-workflow.ts` | Four-step ticket purchase: build quote, suspend for approval, charge card via `mockChargeTool`, then generate a visit brief via the theme park agent |
 
 ### Scorers
 
@@ -51,6 +62,7 @@ npm run build   # Production build
 - Zod v4 is used (`zod@^4.3.6`) — there are type errors in `node_modules/@mastra/core` internal types due to Zod v3/v4 mismatch; these are harmless
 - No root `tsconfig.json` — Mastra CLI manages the build config
 - `.env` file is gitignored; copy from `.env.example`
+- `FIRECRAWL_API_KEY` required in `.env` for the Firecrawl MCP server used by the theme park agent
 
 ## Rules
 
