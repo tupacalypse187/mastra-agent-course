@@ -145,6 +145,12 @@ const postPurchaseSummary = createStep({
       return inputData;
     }
 
+    console.log(
+      `\n✅ Confirmation: ${confirmationId}`,
+      `\n💳 Charged $${quote.totalUsd.toFixed(2)} to ${card.brand} ending in ${card.last4}`,
+      `\n🎫 ${quote.quantity} ticket(s) for ${quote.parkName} on ${quote.date}`,
+    );
+
     const agent = mastra?.getAgent('themeParkAgent');
     if (!agent) {
       return inputData;
@@ -167,28 +173,17 @@ const postPurchaseSummary = createStep({
 
     const stream = await agent.stream(prompt, { maxSteps: 5 });
 
-    // Pipe agent text stream to workflow writer (Mastra best practice)
-    // and simultaneously output live to the terminal.
-    // Collect text manually since tee()/pipeTo() bypasses the internal
-    // tracking that stream.text relies on to resolve its promise.
     let briefText = '';
+    let currentStepText = '';
 
-    if (writer) {
-      const terminalStream = new WritableStream<string>({
-        write(chunk) {
-          process.stdout.write(chunk);
-          briefText += chunk;
-        },
-      });
-      const [workflowBranch, terminalBranch] = stream.textStream.tee();
-      await Promise.all([
-        workflowBranch.pipeTo(writer),
-        terminalBranch.pipeTo(terminalStream),
-      ]);
-    } else {
-      for await (const text of stream.textStream) {
-        process.stdout.write(text);
-        briefText += text;
+    for await (const chunk of stream.fullStream) {
+      if (chunk.part?.type === 'text-delta') {
+        process.stdout.write(chunk.part.textDelta);
+        currentStepText += chunk.part.textDelta;
+      }
+      if (chunk.part?.type === 'finish_step') {
+        briefText = currentStepText;
+        currentStepText = '';
       }
     }
 

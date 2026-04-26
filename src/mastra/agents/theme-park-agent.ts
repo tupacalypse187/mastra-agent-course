@@ -6,7 +6,8 @@ import { firecrawlMcpClient } from '../mcp/firecrawl-mcp';
 import { weatherTool } from '../tools/weather-tool';
 import { simulateTicketPurchaseTool } from '../tools/simulate-ticket-purchase-tool';
 
-const { firecrawl_firecrawl_extract } = await firecrawlMcpClient.listTools();
+const firecrawlTools = await firecrawlMcpClient.listTools();
+const firecrawlExtract = firecrawlTools.firecrawl_firecrawl_extract;
 
 export const themeParkAgent = new Agent({
   id: "theme-park-agent",
@@ -58,6 +59,6 @@ export const themeParkAgent = new Agent({
     - Keep most replies under 5 sentences.
   `,
   memory: new Memory(),
-  tools: { findQueueTimesParkTool, getQueueTimesLiveTool, firecrawl_firecrawl_extract, weatherTool, simulateTicketPurchaseTool },
+  tools: { findQueueTimesParkTool, getQueueTimesLiveTool, weatherTool, simulateTicketPurchaseTool, ...(firecrawlExtract ? { firecrawl_firecrawl_extract: firecrawlExtract } : {}) },
   model: "zai-coding-plan/glm-5-turbo",
 });

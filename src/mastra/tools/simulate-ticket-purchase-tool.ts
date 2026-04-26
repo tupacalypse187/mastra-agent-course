@@ -82,7 +82,7 @@ export const simulateTicketPurchaseTool = createTool({
     }
 
     if (result.status === 'suspended') {
-      const quote = result.steps['approve-purchase']?.output?.quote;
+      const quote = result.steps['build-quote']?.output;
       const suspendedPayload =
         result.steps['approve-purchase']?.suspendPayload;
       return {
