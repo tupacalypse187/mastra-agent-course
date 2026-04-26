@@ -173,19 +173,11 @@ const postPurchaseSummary = createStep({
 
     const stream = await agent.stream(prompt, { maxSteps: 5 });
 
-    let briefText = '';
-    let currentStepText = '';
-
-    for await (const chunk of stream.fullStream) {
-      if (chunk.type === 'text-delta') {
-        process.stdout.write(chunk.payload.text);
-        currentStepText += chunk.payload.text;
-      }
-      if (chunk.type === 'step-finish') {
-        briefText = currentStepText;
-        currentStepText = '';
-      }
+    for await (const text of stream.textStream) {
+      process.stdout.write(text);
     }
+
+    const briefText = await stream.text ?? '';
 
     console.log('\n');
 
