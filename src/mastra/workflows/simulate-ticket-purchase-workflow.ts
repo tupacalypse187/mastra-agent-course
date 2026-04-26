@@ -173,13 +173,11 @@ const postPurchaseSummary = createStep({
 
     const stream = await agent.stream(prompt, { maxSteps: 5 });
 
-    for await (const text of stream.textStream) {
-      process.stdout.write(text);
-    }
-
     const briefText = await stream.text ?? '';
 
-    console.log('\n');
+    if (briefText) {
+      console.log(`\n${briefText}\n`);
+    }
 
     return {
       ...inputData,
