@@ -177,11 +177,11 @@ const postPurchaseSummary = createStep({
     let currentStepText = '';
 
     for await (const chunk of stream.fullStream) {
-      if (chunk.part?.type === 'text-delta') {
-        process.stdout.write(chunk.part.textDelta);
-        currentStepText += chunk.part.textDelta;
+      if (chunk.type === 'text-delta') {
+        process.stdout.write(chunk.payload.text);
+        currentStepText += chunk.payload.text;
       }
-      if (chunk.part?.type === 'finish_step') {
+      if (chunk.type === 'step-finish') {
         briefText = currentStepText;
         currentStepText = '';
       }
