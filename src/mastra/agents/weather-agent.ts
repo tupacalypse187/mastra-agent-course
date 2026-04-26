@@ -20,7 +20,7 @@ export const weatherAgent = new Agent({
 
       Use the weatherTool to fetch current weather data.
 `,
-  model: 'anthropic/claude-sonnet-4-5',
+  model: 'zai-coding-plan/glm-5-turbo',
   tools: { weatherTool },
   scorers: {
     toolCallAppropriateness: {

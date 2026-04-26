@@ -105,10 +105,18 @@ const chargeCard = createStep({
       return inputData;
     }
 
+    if (!mockChargeTool.execute) {
+      throw new Error('mockChargeTool.execute is not defined');
+    }
+
     const chargeResult = await mockChargeTool.execute(
       { amountUsd: quote.totalUsd },
-      { mastra, runtimeContext: {} },
+      { mastra },
     );
+
+    if (!chargeResult || !('paymentIntentId' in chargeResult)) {
+      throw new Error('Card charge failed');
+    }
 
     return {
       ...inputData,

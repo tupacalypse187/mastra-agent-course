@@ -15,8 +15,8 @@ npm run build   # Production build
 
 | Agent | File | Model | Tools |
 | --- | --- | --- | --- |
-| Weather Agent | `src/mastra/agents/weather-agent.ts` | `anthropic/claude-sonnet-4-5` | `weatherTool` |
-| Theme Park Agent | `src/mastra/agents/theme-park-agent.ts` | `zai-coding-plan/glm-5-turbo` | `findQueueTimesParkTool`, `getQueueTimesLiveTool`, `firecrawl_firecrawl_extract`, `weatherTool` |
+| Weather Agent | `src/mastra/agents/weather-agent.ts` | `zai-coding-plan/glm-5-turbo` | `weatherTool` |
+| Theme Park Agent | `src/mastra/agents/theme-park-agent.ts` | `zai-coding-plan/glm-5-turbo` | `findQueueTimesParkTool`, `getQueueTimesLiveTool`, `firecrawl_firecrawl_extract`, `weatherTool`, `simulateTicketPurchaseTool` |
 
 ### Tools
 
@@ -26,6 +26,7 @@ npm run build   # Production build
 | `findQueueTimesParkTool` | `src/mastra/tools/find-park-tools.ts` | Looks up Queue-Times parkId by park name |
 | `getQueueTimesLiveTool` | `src/mastra/tools/get-queue-times-live-tool.ts` | Fetches live ride wait times, sorted by shortest wait first |
 | `mockChargeTool` | `src/mastra/tools/mock-charge-tool.ts` | Simulates a Stripe-like card charge (always succeeds) |
+| `simulateTicketPurchaseTool` | `src/mastra/tools/simulate-ticket-purchase-tool.ts` | Starts the ticket purchase workflow (build quote, suspend for approval, charge) |
 
 ### MCP Clients
 
