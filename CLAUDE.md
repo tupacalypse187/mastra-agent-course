@@ -39,7 +39,7 @@ npm run build   # Production build
 | Workflow | File | Description |
 | --- | --- | --- |
 | `weatherWorkflow` | `src/mastra/workflows/weather-workflow.ts` | Fetches weather for a city, then streams activity suggestions from the weather agent |
-| `simulateTicketPurchaseWorkflow` | `src/mastra/workflows/simulate-ticket-purchase-workflow.ts` | Three-step ticket purchase: build quote, suspend for approval, then charge card via `mockChargeTool` |
+| `simulateTicketPurchaseWorkflow` | `src/mastra/workflows/simulate-ticket-purchase-workflow.ts` | Four-step ticket purchase: build quote, suspend for approval, charge card via `mockChargeTool`, then generate a visit brief via the theme park agent |
 
 ### Scorers
 

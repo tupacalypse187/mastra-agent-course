@@ -22,6 +22,7 @@ const resultSchema = z.object({
       last4: z.string(),
     })
     .optional(),
+  visitBrief: z.string().optional(),
 });
 
 const buildQuote = createStep({
@@ -131,6 +132,69 @@ const chargeCard = createStep({
   },
 });
 
+const postPurchaseSummary = createStep({
+  id: 'post-purchase-summary',
+  description:
+    'After a confirmed purchase, asks the theme park agent for a concise visit brief with arrival tips, must-do attractions, and things to avoid.',
+  inputSchema: resultSchema,
+  outputSchema: resultSchema,
+  execute: async ({ inputData, mastra, writer }) => {
+    const { quote, status, confirmationId, card } = inputData;
+
+    if (status !== 'confirmed' || !confirmationId || !card) {
+      return inputData;
+    }
+
+    const agent = mastra?.getAgent('themeParkAgent');
+    if (!agent) {
+      return inputData;
+    }
+
+    console.log(
+      `\n🎫 Purchase confirmed! Generating your visit brief for ${quote.parkName} on ${quote.date}...\n`,
+    );
+
+    const prompt = [
+      `A user just booked ${quote.quantity} ticket(s) to ${quote.parkName} for ${quote.date}.`,
+      `Total: $${quote.totalUsd.toFixed(2)} (${quote.quantity} × $${quote.unitPriceUsd.toFixed(2)} + $${quote.feesUsd.toFixed(2)} fees).`,
+      `Confirmation ID: ${confirmationId}. Card: ${card.brand} ending in ${card.last4}.`,
+      '',
+      'Use your tools to check crowd forecast and historical busy-day data for that date, then provide a concise 3-point visit brief:',
+      '1. Best arrival time and why.',
+      '2. One must-do attraction in the first 30 minutes.',
+      '3. One specific thing to avoid or watch out for.',
+    ].join('\n');
+
+    const stream = await agent.stream(prompt, { maxSteps: 5 });
+
+    // Pipe agent text stream to workflow writer (Mastra best practice)
+    // and simultaneously output live to the terminal
+    if (writer) {
+      const terminalStream = new WritableStream<string>({
+        write(chunk) {
+          process.stdout.write(chunk);
+        },
+      });
+      const [workflowBranch, terminalBranch] = stream.textStream.tee();
+      await Promise.all([
+        workflowBranch.pipeTo(writer),
+        terminalBranch.pipeTo(terminalStream),
+      ]);
+    } else {
+      for await (const text of stream.textStream) {
+        process.stdout.write(text);
+      }
+    }
+
+    console.log('\n');
+
+    return {
+      ...inputData,
+      visitBrief: await stream.text,
+    };
+  },
+});
+
 const simulateTicketPurchaseWorkflow = createWorkflow({
   id: 'simulate-ticket-purchase-workflow',
   inputSchema: z.object({
@@ -144,6 +208,7 @@ const simulateTicketPurchaseWorkflow = createWorkflow({
   .then(buildQuote)
   .then(approvePurchase)
   .then(chargeCard)
+  .then(postPurchaseSummary)
   .commit();
 
 export { simulateTicketPurchaseWorkflow, quoteSchema, resultSchema };

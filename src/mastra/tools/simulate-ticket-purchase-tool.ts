@@ -38,6 +38,7 @@ export const simulateTicketPurchaseTool = createTool({
     card: z
       .object({ brand: z.string(), last4: z.string() })
       .optional(),
+    visitBrief: z.string().optional(),
     runId: z.string().optional(),
   }),
   execute: async ({ parkName, date, quantity, unitPriceUsd }, { mastra }) => {
@@ -70,6 +71,7 @@ export const simulateTicketPurchaseTool = createTool({
         quote: result.result?.quote,
         confirmationId: result.result?.confirmationId,
         card: result.result?.card,
+        visitBrief: result.result?.visitBrief,
         runId: run.runId,
       };
     }

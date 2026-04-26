@@ -44,6 +44,7 @@ export const themeParkAgent = new Agent({
     - Pass parkName, date, quantity, and optionally unitPriceUsd.
     - The tool returns a quote for review. Inform the user of the total and ask if they'd like to proceed.
     - If the tool returns a "suspended" status with a runId, share the quote details and let the user know the purchase is pending approval.
+    - If the tool returns a confirmed status with a visitBrief, present the brief to the user along with the confirmation details.
     
     Conversation state:
     - After a parkId is confirmed, treat it as the current park for follow-ups until the user changes parks.

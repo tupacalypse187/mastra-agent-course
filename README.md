@@ -117,7 +117,7 @@ To install/update:
 | Workflow | What it does |
 | --- | --- |
 | `weatherWorkflow` | Fetch weather → stream activity suggestions from the weather agent |
-| `simulateTicketPurchaseWorkflow` | Build quote → suspend for approval → charge card (or cancel) |
+| `simulateTicketPurchaseWorkflow` | Build quote → suspend for approval → charge card → agent-generated visit brief (or cancel) |
 
 ### Example Conversations
 
@@ -134,7 +134,7 @@ To install/update:
 **Ticket purchase:**
 > "Buy 3 tickets for Islands of Adventure on 2026-05-15"
 >
-> The agent starts the purchase workflow, returns a quote ($330 + fees), and informs you the purchase is pending approval.
+> The agent starts the purchase workflow, returns a quote ($330 + fees), and informs you the purchase is pending approval. Once approved (via Studio's workflow runner), the card is charged and the agent streams a 3-point visit brief with arrival tips, must-do attractions, and things to avoid.
 
 ## Commit History
 
@@ -152,6 +152,9 @@ Built a three-step workflow using Mastra's human-in-the-loop pattern:
 
 ### `77b9dc6` Integrate ticket purchase workflow into theme park agent
 Created `simulateTicketPurchaseTool` that starts the workflow from the agent via `mastra.getWorkflow()`. The tool handles both suspended (returns quote for review) and success (returns final result) states. Wired it into the theme park agent with instructions for when to trigger a purchase.
+
+### `(next)` Add post-purchase visit brief step to ticket workflow
+Added a `postPurchaseSummary` workflow step that runs after card charge. It retrieves the theme park agent from the Mastra instance, streams a 3-point visit brief (best arrival time, must-do attraction, things to avoid) using `agent.stream()` with `textStream.tee()` for both workflow writer and terminal output. Extended the workflow output schema with a `visitBrief` field and updated the tool to pass it through.
 
 ## Learn More
 
